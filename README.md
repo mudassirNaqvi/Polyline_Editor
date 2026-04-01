@@ -86,13 +86,6 @@ Polyline-Editor/
 * Highlight selected vertices
 * Better visual feedback
 
----
-
-## 👨‍💻 Author
-
-Ali
-
----
 
 ## 📄 Note
 
