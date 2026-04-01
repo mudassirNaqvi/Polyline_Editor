@@ -1,0 +1,62 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f6fa;
+  margin: 0;
+  text-align: center;
+}
+
+.header {
+  background: #2f3640;
+  color: white;
+  padding: 15px;
+}
+
+.toolbar {
+  margin: 15px;
+}
+
+.btn {
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 6px;
+  background: #dcdde1;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn:hover {
+  background: #b2bec3;
+}
+
+.active {
+  background: #00a8ff;
+  color: white;
+}
+
+.shortcut {
+  display: block;
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.shortcuts-panel {
+  background: #dcdde1;
+  display: inline-block;
+  padding: 8px 15px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 10px;
+}
+
+canvas {
+  border: 2px solid #2f3640;
+  background: white;
+  border-radius: 8px;
+}
+
+.mode-text {
+  margin: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}

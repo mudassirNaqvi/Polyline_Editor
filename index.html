@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Polyline Editor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="header">
+  <h2>Polyline Editor</h2>
+</div>
+
+<div class="toolbar">
+  <button class="btn active" onclick="setMode('b')" id="b">
+    Draw <span class="shortcut">(B)</span>
+  </button>
+
+  <button class="btn" onclick="setMode('d')" id="d">
+    Delete <span class="shortcut">(D)</span>
+  </button>
+
+  <button class="btn" onclick="setMode('m')" id="m">
+    Move <span class="shortcut">(M)</span>
+  </button>
+
+  <button class="btn" onclick="setMode('i')" id="i">
+    Insert <span class="shortcut">(I)</span>
+  </button>
+
+  <button class="btn" onclick="resetAll()">
+    Reset <span class="shortcut">(R)</span>
+  </button>
+</div>
+
+<div class="shortcuts-panel">
+  Shortcuts: B = Draw | D = Delete | M = Move | I = Insert | R = Reset
+</div>
+
+<div class="mode-text">
+  Mode: <span id="mode">Draw</span>
+</div>
+
+<canvas id="canvas" width="700" height="450"></canvas>
+
+<script src="script.js"></script>
+
+</body>
+</html>
