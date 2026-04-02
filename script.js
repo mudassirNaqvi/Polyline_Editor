@@ -70,7 +70,6 @@ buildColorStrip();
 // ─── History (Undo/Redo) ──────────────────────────────────────────────────────
 function saveState() {
   const snapshot = JSON.stringify({ polylines, currentPoly });
-  // Truncate future history if we branched
   history = history.slice(0, historyIdx + 1);
   history.push(snapshot);
   if (history.length > 80) history.shift();
@@ -218,13 +217,11 @@ canvas.addEventListener('mousedown', e => {
         announce('Error: maximum polylines reached');
         return;
       }
-      // pick next available color based on colorIndex
       const color = selectedColor || COLORS[colorIndex % COLORS.length];
       colorIndex++;
       polylines.push({ points: [], color });
       currentPoly = polylines.length - 1;
     }
-    // Apply angle snap if shift held, relative to last point
     const poly = polylines[currentPoly];
     if (shiftDown && poly.points.length > 0) {
       const last = poly.points[poly.points.length - 1];
@@ -261,11 +258,9 @@ canvas.addEventListener('mousemove', e => {
   const raw = canvasPos(e);
   let { x, y } = applySnap(raw.x, raw.y);
 
-  // Update status bar (raw screen coords for clarity)
   document.getElementById('st-mouse').textContent =
     `${Math.round(raw.x)}, ${Math.round(raw.y)}`;
 
-  // Detect hover over point (for cursor change)
   if (mode === 'move' || mode === 'delete') {
     const wasOver = overPoint;
     overPoint = !!findClosestPoint(raw.x, raw.y);
@@ -287,7 +282,6 @@ canvas.addEventListener('mousemove', e => {
       if (shiftDown) {
         const snapped = applyAngleSnap(x, y, last.x, last.y);
         tx = snapped.x; ty = snapped.y;
-        // Show angle badge
         const angle = Math.atan2(ty - last.y, tx - last.x) * 180 / Math.PI;
         const badge = document.getElementById('angle-badge');
         badge.textContent = `${Math.round(angle)}°`;
@@ -296,7 +290,6 @@ canvas.addEventListener('mousemove', e => {
         document.getElementById('angle-badge').classList.remove('show');
       }
       redraw();
-      // Preview dashed line
       ctx.save();
       ctx.translate(panX, panY);
       ctx.scale(zoom, zoom);
@@ -308,7 +301,6 @@ canvas.addEventListener('mousemove', e => {
       ctx.lineTo(tx, ty);
       ctx.stroke();
       ctx.setLineDash([]);
-      // Snap indicator at cursor
       if (snapEnabled || shiftDown) {
         ctx.beginPath();
         ctx.arc(tx, ty, 5, 0, Math.PI * 2);
@@ -326,7 +318,6 @@ canvas.addEventListener('mousemove', e => {
 canvas.addEventListener('mouseup', e => {
   if (mode === 'move' && isDragging) {
     autosave();
-    // Update final state in history
     history[historyIdx] = JSON.stringify({ polylines, currentPoly });
   }
   isDragging  = false;
@@ -360,11 +351,9 @@ function finishPolyline() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Shift') {
     shiftDown = true;
-    document.getElementById('angle-badge');
     return;
   }
 
-  // Prevent shortcut conflicts when typing in inputs
   if (e.target !== document.body && e.target !== canvas) return;
 
   if (e.ctrlKey || e.metaKey) {
@@ -472,7 +461,6 @@ function redraw() {
   ctx.translate(panX, panY);
   ctx.scale(zoom, zoom);
 
-  // Grid
   if (gridVisible) {
     const startX = -panX / zoom;
     const startY = -panY / zoom;
@@ -489,23 +477,19 @@ function redraw() {
     for (let y = oy; y < endY; y += gs) {
       ctx.beginPath(); ctx.moveTo(startX, y); ctx.lineTo(endX, y); ctx.stroke();
     }
-    // Axis lines
     ctx.strokeStyle = 'rgba(255,255,255,0.08)';
     ctx.lineWidth   = 1;
     ctx.beginPath(); ctx.moveTo(0, startY); ctx.lineTo(0, endY); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(startX, 0); ctx.lineTo(endX, 0); ctx.stroke();
   }
 
-  // Draw polylines
   polylines.forEach((poly, pi) => {
     if (poly.points.length === 0) return;
     const isActive = pi === currentPoly;
 
-    // Glow
     ctx.shadowColor = poly.color;
     ctx.shadowBlur  = isActive ? 14 : 5;
 
-    // Lines
     ctx.beginPath();
     ctx.moveTo(poly.points[0].x, poly.points[0].y);
     for (let i = 1; i < poly.points.length; i++) {
@@ -518,7 +502,6 @@ function redraw() {
     ctx.stroke();
     ctx.shadowBlur  = 0;
 
-    // Length measurement labels between segments
     if (isActive) {
       ctx.font = `${9 / zoom}px DM Mono`;
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
@@ -530,29 +513,24 @@ function redraw() {
       }
     }
 
-    // Points
     poly.points.forEach((p, vi) => {
       const r = (mode === 'move' || mode === 'delete') ? 9 : 5;
-      // Check if this is the hovered point
       const isHovered = overPoint && mode !== 'draw' &&
         findClosestPoint(p.x, p.y) &&
         findClosestPoint(p.x, p.y).polyIdx === pi &&
         findClosestPoint(p.x, p.y).ptIdx === vi;
 
-      // Outer ring
       ctx.beginPath();
       ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
       ctx.strokeStyle = isHovered ? '#fff' : poly.color;
       ctx.lineWidth   = isHovered ? 2 : 1.2;
       ctx.stroke();
 
-      // Inner fill
       ctx.beginPath();
       ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
       ctx.fillStyle = isHovered ? '#fff' : poly.color;
       ctx.fill();
 
-      // Index
       ctx.fillStyle = 'rgba(255,255,255,0.4)';
       ctx.font      = `${9 / zoom}px DM Mono`;
       ctx.fillText(vi, p.x + 8 / zoom, p.y - 6 / zoom);
@@ -700,9 +678,9 @@ function download(filename, type, content) {
 // ─── Init ─────────────────────────────────────────────────────────────────────
 resizeCanvas();
 autoload();
-saveState(); // initial empty state
+saveState();
 updateUI();
 updatePolyList();
 updateStatus();
 updateZoomLabel();
-showHelp(); // show help on first load
+showHelp();
