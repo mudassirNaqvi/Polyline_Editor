@@ -1,92 +1,171 @@
-# Polyline Editor 🎨
+# 🎨 PolyLine Editor
 
-## 📌 Project Description
+## 📌 Project Overview
 
-This project is a **simple Polyline Editor** developed for Human-Computer Interaction (HCI) lab work.
-It allows users to create and edit multiple connected line segments (polylines) using mouse and keyboard interaction.
+The **PolyLine Editor** is an interactive web-based drawing tool that allows users to create, edit, and manage polylines on a canvas. It is designed with strong **Human-Computer Interaction (HCI)** principles, providing an intuitive and user-friendly experience.
 
-The system supports basic editing operations such as drawing, deleting, moving, and inserting points.
-
----
-
-## 🎯 Features
-
-* Draw multiple polylines (up to 100)
-* Delete any vertex
-* Move vertices to new positions
-* Insert new points on existing line segments
-* Reset/clear the canvas
-* Keyboard shortcuts + clickable buttons
-* Clean and user-friendly interface
+This project demonstrates concepts like direct manipulation, feedback, undo/redo, and accessibility.
 
 ---
 
-## 🧠 Controls
+## ✨ Features
 
-### 🔘 Modes
+### 🖊️ Drawing & Editing
 
-| Action | Key | Description                                    |
-| ------ | --- | ---------------------------------------------- |
-| Draw   | B   | Add new points to create a polyline            |
-| Delete | D   | Remove a selected point                        |
-| Move   | M   | Move a point (click to select, click to place) |
-| Insert | I   | Add a point on a line segment                  |
-| Reset  | R   | Clear all drawings                             |
+* Draw polylines by clicking on the canvas
+* Double-click or right-click to finish a polyline
+* Move points by dragging
+* Delete individual points or entire polylines
+
+### 🎛️ Modes
+
+* **Draw Mode (B)** – Create new polylines
+* **Move Mode (M)** – Adjust existing points
+* **Delete Mode (D)** – Remove points
+
+### 🎨 Customization
+
+* Multiple stroke colors
+* Color selection panel
+* Visual feedback with highlighted points
+
+### ⚙️ Smart Tools
+
+* Grid display toggle
+* Grid snapping (with Shift or toggle)
+* Angle snapping (45° constraint)
+* Zoom in/out and reset
+
+### 🕘 History Management
+
+* Undo (Ctrl + Z)
+* Redo (Ctrl + Y)
+* Action history tracking
+
+### 💾 Autosave
+
+* Automatically saves data in browser (localStorage)
+* Restores previous session on reload
+
+### 📤 Export Options
+
+* Export as **SVG**
+* Export as **JSON**
+* Export as **PNG**
+
+### 📊 Status & Feedback
+
+* Real-time mouse coordinates
+* Polyline and point count
+* Toast notifications for actions
+* Angle indicator while drawing
+
+### ♿ Accessibility
+
+* Keyboard shortcuts for all major actions
+* ARIA labels for screen readers
+* Skip navigation support
 
 ---
 
-## 🖱️ How to Use
+## ⌨️ Keyboard Shortcuts
 
-1. Select a mode using buttons or keyboard.
-2. Click on the canvas to perform actions:
-
-   * Draw: Click multiple times to create a shape
-   * Delete: Click near a point to remove it
-   * Move: Click a point → click new position
-   * Insert: Click near a line to add a new point
-3. Use Reset to clear everything.
+| Key      | Action          |
+| -------- | --------------- |
+| B        | Draw Mode       |
+| M        | Move Mode       |
+| D        | Delete Mode     |
+| Ctrl + Z | Undo            |
+| Ctrl + Y | Redo            |
+| Shift    | Angle Snap      |
+| G        | Toggle Grid     |
+| S        | Toggle Snap     |
+| + / -    | Zoom            |
+| 0        | Reset Zoom      |
+| Esc      | Finish Polyline |
+| Q        | Clear All       |
+| ?        | Help            |
+| Ctrl + S | Export          |
 
 ---
 
-## 🗂️ Project Structure
+## 🛠️ Technologies Used
 
-```id="a1f9d2"
-Polyline-Editor/
-│── index.html   # Structure
-│── style.css    # Design & layout
-│── script.js    # Functionality
+* **HTML5** – Structure
+* **CSS3** – Styling and UI design
+* **JavaScript (Vanilla)** – Logic and interactivity
+* **Canvas API** – Rendering graphics
+* **LocalStorage** – Data persistence
+
+---
+
+## 📂 Project Structure
+
+```
+project-folder/
+│
+├── index.html   # Main application file (HTML, CSS, JS combined)
+└── README.md    # Project documentation
 ```
 
 ---
 
-## ⚙️ Technologies Used
+## 🚀 How to Run
 
-* HTML (Structure)
-* CSS (Styling)
-* JavaScript (Logic & Interaction)
-* HTML Canvas (Drawing)
+1. Download or clone the project
+2. Open the HTML file in your browser:
 
----
+```bash
+open index.html
+```
 
-## 🧩 HCI Concepts Applied
-
-* **Direct Manipulation** (click to interact with objects)
-* **Feedback** (instant visual updates)
-* **Consistency** (same keys and actions)
-* **Visibility** (mode and controls clearly shown)
-* **Efficiency** (keyboard shortcuts + buttons)
+No installation or dependencies required.
 
 ---
 
-## 🚀 Future Improvements
+## 🧠 HCI Concepts Used
 
-* Drag-and-drop movement
-* Undo/Redo functionality
-* Save/Load drawings
-* Highlight selected vertices
-* Better visual feedback
+### 1. Direct Manipulation
 
+Users interact directly with objects (points, lines) on the canvas.
 
-## 📄 Note
+### 2. Feedback
 
-This project is developed for educational purposes as part of an HCI lab assignment.
+* Visual highlights
+* Toast messages
+* Status bar updates
+
+### 3. Constraints
+
+* Grid snapping
+* Angle snapping (45°)
+
+### 4. Undo/Redo (Reversibility)
+
+Allows users to recover from mistakes.
+
+### 5. Visibility of System Status
+
+* Mode indicator (Draw/Move/Delete)
+* Mouse coordinates
+* Polyline count
+
+### 6. Consistency
+
+* Same interaction patterns across modes
+* Uniform UI components
+
+### 7. Accessibility
+
+* Keyboard shortcuts
+* ARIA labels for screen readers
+
+---
+
+## 📈 Possible Improvements
+
+* Add touch support for mobile devices
+* Save/export to cloud
+* Add polygon fill option
+* Layer management system
+* Multi-select and group editing
