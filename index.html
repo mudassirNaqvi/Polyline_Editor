@@ -1,49 +1,183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Polyline Editor</title>
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyLine Editor — Enhanced</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Unbounded:wght@400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<div class="header">
-  <h2>Polyline Editor</h2>
+<!-- Accessibility -->
+<a href="#canvas" class="sr-only" id="skip-link">Skip to canvas</a>
+
+<!-- ARIA live region for screen readers -->
+<div aria-live="polite" aria-atomic="true" class="sr-only" id="aria-live"></div>
+<div aria-live="assertive" aria-atomic="true" class="sr-only" id="aria-alert"></div>
+
+<header role="banner">
+  <div class="logo">Poly<span>Line</span></div>
+  <div class="header-actions">
+    <button class="hdr-btn" onclick="showExport()" title="Export (Ctrl+S)" aria-label="Export polylines">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <button class="hdr-btn" onclick="showHelp()" title="Help (?)" aria-label="Open help panel">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Help
+    </button>
+  </div>
+</header>
+
+<div class="main-layout" role="main">
+
+  <!-- Sidebar -->
+  <nav class="sidebar" aria-label="Editor controls">
+
+    <!-- Mode buttons -->
+    <div class="sb-section">
+      <div class="sb-title">Mode</div>
+      <div class="mode-grid" role="radiogroup" aria-label="Drawing mode">
+        <button class="mode-btn active" id="btn-draw" onclick="setMode('draw')" role="radio" aria-checked="true" aria-label="Draw mode — press B" title="Draw (B)">
+          <span class="kbd-chip">B</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+          Draw
+        </button>
+        <button class="mode-btn mode-move" id="btn-move" onclick="setMode('move')" role="radio" aria-checked="false" aria-label="Move mode — press M" title="Move (M)">
+          <span class="kbd-chip">M</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="5 9 2 12 5 15"/><polyline points="9 5 12 2 15 5"/><polyline points="15 19 12 22 9 19"/><polyline points="19 9 22 12 19 15"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="12" y1="2" x2="12" y2="22"/></svg>
+          Move
+        </button>
+        <button class="mode-btn mode-delete" id="btn-delete" onclick="setMode('delete')" role="radio" aria-checked="false" aria-label="Delete mode — press D" title="Delete (D)">
+          <span class="kbd-chip">D</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          Delete
+        </button>
+      </div>
+    </div>
+
+    <!-- Color -->
+    <div class="sb-section">
+      <div class="sb-title">Stroke Color</div>
+      <div class="color-strip" id="color-strip" role="group" aria-label="Color selection"></div>
+    </div>
+
+    <!-- Settings -->
+    <div class="sb-section">
+      <div class="sb-title">Settings</div>
+      <div class="toggle-row" onclick="toggleSnap()" role="checkbox" aria-checked="false" id="snap-toggle-row" tabindex="0" aria-label="Toggle grid snap">
+        <div><div class="toggle-label">Grid Snap</div><div class="toggle-sub">Hold Shift to snap</div></div>
+        <div class="toggle-switch" id="snap-switch"></div>
+      </div>
+      <div class="toggle-row" onclick="toggleGrid()" role="checkbox" aria-checked="false" id="grid-toggle-row" tabindex="0" aria-label="Toggle grid visibility">
+        <div><div class="toggle-label">Show Grid</div><div class="toggle-sub">Visual reference</div></div>
+        <div class="toggle-switch on" id="grid-switch"></div>
+      </div>
+      <div class="zoom-row">
+        <button class="zoom-btn" onclick="zoomOut()" title="Zoom out (–)" aria-label="Zoom out">−</button>
+        <div class="zoom-label" id="zoom-label" aria-live="polite">100%</div>
+        <button class="zoom-btn" onclick="zoomIn()"  title="Zoom in (+)" aria-label="Zoom in">+</button>
+        <button class="zoom-btn" onclick="resetZoom()" title="Reset zoom (0)" aria-label="Reset zoom" style="font-size:0.55rem;width:32px">RST</button>
+      </div>
+    </div>
+
+    <!-- Undo/Redo -->
+    <div class="sb-section">
+      <div class="sb-title">History</div>
+      <div class="action-row">
+        <button class="action-btn" id="btn-undo" onclick="undo()" disabled title="Undo (Ctrl+Z)" aria-label="Undo last action">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/></svg>
+          Undo
+        </button>
+        <button class="action-btn" id="btn-redo" onclick="redo()" disabled title="Redo (Ctrl+Y)" aria-label="Redo last action">
+          Redo
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg>
+        </button>
+      </div>
+      <div class="action-row">
+        <button class="action-btn" onclick="clearAll()" title="Clear all (Q)" aria-label="Clear all polylines" style="color:var(--danger);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Poly list -->
+    <div class="sb-title" style="padding:10px 14px 4px;">Polylines <span id="poly-count" style="color:var(--accent)">0</span>/100</div>
+    <div class="poly-list-wrap" id="poly-list" role="list" aria-label="Polyline list"></div>
+  </nav>
+
+  <!-- Canvas area -->
+  <div class="canvas-wrap" id="canvas-wrap">
+    <canvas id="canvas" role="img" aria-label="Polyline drawing canvas" tabindex="0" class="mode-draw"></canvas>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div class="angle-badge" id="angle-badge"></div>
+  </div>
+
 </div>
 
-<div class="toolbar">
-  <button class="btn active" onclick="setMode('b')" id="b">
-    Draw <span class="shortcut">(B)</span>
-  </button>
+<!-- Status Bar -->
+<footer class="statusbar" role="contentinfo" aria-label="Editor status">
+  <div class="status-item">
+    <div class="status-dot"></div>
+    <span id="st-mode-badge" class="status-mode-badge mode-draw-badge">DRAW</span>
+  </div>
+  <div class="status-item">Polylines: <strong id="st-polys">0</strong></div>
+  <div class="status-item">Points: <strong id="st-points">0</strong></div>
+  <div class="status-item">Undo stack: <strong id="st-undo">0</strong></div>
+  <div class="status-item" id="snap-status" style="display:none"><span class="snap-badge">SNAP ON</span></div>
+  <div class="status-item" style="margin-left:auto">Mouse: <strong id="st-mouse">—</strong></div>
+</footer>
 
-  <button class="btn" onclick="setMode('d')" id="d">
-    Delete <span class="shortcut">(D)</span>
-  </button>
-
-  <button class="btn" onclick="setMode('m')" id="m">
-    Move <span class="shortcut">(M)</span>
-  </button>
-
-  <button class="btn" onclick="setMode('i')" id="i">
-    Insert <span class="shortcut">(I)</span>
-  </button>
-
-  <button class="btn" onclick="resetAll()">
-    Reset <span class="shortcut">(R)</span>
-  </button>
+<!-- Help Overlay -->
+<div id="help-overlay" role="dialog" aria-modal="true" aria-label="Help" onclick="e=>e.target===this&&hideHelp()">
+  <div class="help-card">
+    <div class="help-title">Keyboard Shortcuts</div>
+    <div class="help-grid">
+      <div class="help-row"><span class="help-key">B</span> Draw mode</div>
+      <div class="help-row"><span class="help-key">M</span> Move mode</div>
+      <div class="help-row"><span class="help-key">D</span> Delete mode</div>
+      <div class="help-row"><span class="help-key">Ctrl+Z</span> Undo</div>
+      <div class="help-row"><span class="help-key">Ctrl+Y</span> Redo</div>
+      <div class="help-row"><span class="help-key">Shift</span> Angle snap</div>
+      <div class="help-row"><span class="help-key">G</span> Toggle grid</div>
+      <div class="help-row"><span class="help-key">S</span> Toggle snap</div>
+      <div class="help-row"><span class="help-key">+/−</span> Zoom in/out</div>
+      <div class="help-row"><span class="help-key">0</span> Reset zoom</div>
+      <div class="help-row"><span class="help-key">Esc</span> End polyline</div>
+      <div class="help-row"><span class="help-key">Q</span> Clear all</div>
+      <div class="help-row"><span class="help-key">?</span> This help</div>
+      <div class="help-row"><span class="help-key">Ctrl+S</span> Export</div>
+    </div>
+    <div style="font-size:0.65rem;color:var(--muted);margin-bottom:16px;">
+      Double-click or right-click to finish a polyline. Hold Shift to snap to 45° angles.
+    </div>
+    <button class="help-close" onclick="hideHelp()" aria-label="Close help">Got it</button>
+  </div>
 </div>
 
-<div class="shortcuts-panel">
-  Shortcuts: B = Draw | D = Delete | M = Move | I = Insert | R = Reset
+<!-- Export Modal -->
+<div id="export-modal" role="dialog" aria-modal="true" aria-label="Export options">
+  <div class="export-card">
+    <div class="export-title">Export</div>
+    <button class="export-btn" onclick="exportSVG()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l3 3 5-5"/></svg>
+      Export as SVG
+    </button>
+    <button class="export-btn" onclick="exportJSON()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Export as JSON
+    </button>
+    <button class="export-btn" onclick="exportPNG()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Export as PNG
+    </button>
+    <button class="export-btn" onclick="hideExport()" style="margin-top:16px;border-color:var(--border);color:var(--muted)">Cancel</button>
+  </div>
 </div>
-
-<div class="mode-text">
-  Mode: <span id="mode">Draw</span>
-</div>
-
-<canvas id="canvas" width="700" height="450"></canvas>
 
 <script src="script.js"></script>
-
 </body>
 </html>
